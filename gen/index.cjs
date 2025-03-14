@@ -27,11 +27,11 @@
  *  
  * @system
  *
- * generated_on: 2025-03-13T20:16:21.693Z
+ * generated_on: 2025-03-14T00:19:21.650Z
  * certified_version: 1.0.0
  * file_uuid: 82eac8a5-a25a-420d-9ea0-ec08c2c084a7
- * file_size: 3463 bytes
- * file_hash: ebf69f84a0ab2942db0eea184ca8d1378553278528d449cad39be09e77c608f8
+ * file_size: 2697 bytes
+ * file_hash: 0dd1486855b813b558c37786b32d0bdbd205d3fed2a77015426cdbbacac46de0
  * mast_hash: e05b557f1bf89a664c16ad18b0c80427db6b7abcba27df4910f2a9b2232d8b05
  * generated_by: preamble on npm!
  *
@@ -57,13 +57,14 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   capDim: () => capDim,
-  capDimRounded: () => capDimRounded,
-  capDimRoundedWithInfo: () => capDimRoundedWithInfo,
-  capDimWithInfo: () => capDimWithInfo
+  default: () => index_default
 });
 module.exports = __toCommonJS(index_exports);
 
 function capDim(dims, maxVolume) {
+  if (maxVolume <= 0) {
+    throw new Error("maxVolume must be greater than zero.");
+  }
   const totalVolume = dims.reduce((acc, dim) => acc * dim, 1);
   if (totalVolume <= maxVolume) {
     return [...dims];
@@ -71,30 +72,8 @@ function capDim(dims, maxVolume) {
   const scaleFactor = Math.pow(maxVolume / totalVolume, 1 / dims.length);
   return dims.map((dim) => dim * scaleFactor);
 }
-function capDimWithInfo(dims, maxVolume) {
-  const newDims = capDim(dims, maxVolume);
-  const isCapped = !dims.every((dim, i) => dim === newDims[i]);
-  return { dims: newDims, isCapped };
-}
-const RoundingFunctions = {
-  nearest: Math.round,
-  ceil: Math.ceil,
-  floor: Math.floor
-};
-function capDimRounded(dims, maxVolume, round = "nearest") {
-  const newDims = capDim(dims, maxVolume);
-  const roundFn = RoundingFunctions[round] ?? RoundingFunctions.nearest;
-  return newDims.map(roundFn);
-}
-function capDimRoundedWithInfo(dims, maxVolume, round = "nearest") {
-  const newDims = capDimRounded(dims, maxVolume, round);
-  const isCapped = !dims.every((dim, i) => dim === newDims[i]);
-  return { dims: newDims, isCapped };
-}
+var index_default = capDim;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  capDim,
-  capDimRounded,
-  capDimRoundedWithInfo,
-  capDimWithInfo
+  capDim
 });

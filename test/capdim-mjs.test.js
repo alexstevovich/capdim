@@ -1,78 +1,54 @@
 import { describe, it, expect } from 'vitest';
-import {
-    capDim,
-    capDimWithInfo,
-    capDimRounded,
-    capDimRoundedWithInfo,
-} from '../src/index.js';
+import { capDim } from '../src/index.js';
 
 describe('capDim', () => {
-    it('returns original dimensions if within maxVolume', () => {
+    it('returns the same dimensions when already within bounds', () => {
         expect(capDim([10, 10], 200)).toEqual([10, 10]);
+        expect(capDim([5, 5, 5], 200)).toEqual([5, 5, 5]);
     });
 
     it('scales down correctly while maintaining proportions', () => {
-        const result = capDim([20, 10], 100);
-        expect(result[0]).toBeCloseTo(14.1421356, 6);
-        expect(result[1]).toBeCloseTo(7.0710678, 6);
+        expect(capDim([20, 10], 100)).toEqual([
+            14.142135623730951, 7.0710678118654755,
+        ]);
     });
 
-    it('handles 1D case properly', () => {
-        expect(capDim([100], 50)).toEqual([50]);
-    });
-
-    it('handles large dimensions correctly', () => {
+    it('scales down large values correctly', () => {
         const result = capDim([1000, 500], 250000);
         expect(result[0]).toBeCloseTo(707.10678, 5);
         expect(result[1]).toBeCloseTo(353.55339, 5);
     });
-});
 
-describe('capDimWithInfo', () => {
-    it('detects when resizing is needed', () => {
-        const result = capDimWithInfo([20, 10], 100);
-        expect(result.isCapped).toBe(true);
-        expect(result.dims[0]).toBeCloseTo(14.1421356, 6);
-        expect(result.dims[1]).toBeCloseTo(7.0710678, 6);
+    it('handles 3D and higher dimensions correctly', () => {
+        expect(capDim([10, 10, 10], 500)).toEqual([
+            7.937005259840998, 7.937005259840998, 7.937005259840998,
+        ]);
     });
 
-    it('detects when resizing is NOT needed', () => {
-        const result = capDimWithInfo([10, 10], 200);
-        expect(result.isCapped).toBe(false);
-        expect(result.dims).toEqual([10, 10]);
-    });
-});
-
-describe('capDimRounded', () => {
-    it('applies rounding correctly (nearest)', () => {
-        expect(capDimRounded([20, 10], 100, 'nearest')).toEqual([14, 7]);
+    it('returns a new array instance (immutability check)', () => {
+        const dims = [50, 50];
+        const result = capDim(dims, 2000);
+        expect(result).not.toBe(dims);
     });
 
-    it('applies rounding correctly (floor)', () => {
-        expect(capDimRounded([20, 10], 100, 'floor')).toEqual([14, 7]);
+    it('maintains aspect ratio even in high dimensions', () => {
+        const result = capDim([100, 200, 300, 400], 10000000);
+        const scaleFactor = result[0] / 100;
+        expect(result.map((d) => d / scaleFactor)).toEqual([
+            100, 200, 300, 400,
+        ]);
     });
 
-    it('applies rounding correctly (ceil)', () => {
-        expect(capDimRounded([20, 10], 100, 'ceil')).toEqual([15, 8]);
-    });
-});
-
-describe('capDimRoundedWithInfo', () => {
-    it('detects when rounding & resizing are applied', () => {
-        const result = capDimRoundedWithInfo([20, 10], 100, 'nearest');
-        expect(result.isCapped).toBe(true);
-        expect(result.dims).toEqual([14, 7]);
+    it('does not distort single-dimensional inputs', () => {
+        expect(capDim([500], 200)).toEqual([200]);
     });
 
-    it('detects when no rounding/resizing is needed', () => {
-        const result = capDimRoundedWithInfo([10, 10], 200, 'nearest');
-        expect(result.isCapped).toBe(false);
-        expect(result.dims).toEqual([10, 10]);
-    });
-
-    it('handles large values with rounding', () => {
-        const result = capDimRoundedWithInfo([1000, 500], 250000, 'ceil');
-        expect(result.isCapped).toBe(true);
-        expect(result.dims).toEqual([708, 354]);
+    it('throws an error when maxVolume is zero or negative', () => {
+        expect(() => capDim([10, 10], 0)).toThrow(
+            'maxVolume must be greater than zero.',
+        );
+        expect(() => capDim([10, 10], -100)).toThrow(
+            'maxVolume must be greater than zero.',
+        );
     });
 });

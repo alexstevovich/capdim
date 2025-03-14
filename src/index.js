@@ -27,11 +27,11 @@
  *
  * @system
  *
- * generated_on: 2025-03-13T20:16:17.881Z
+ * generated_on: 2025-03-14T00:18:23.541Z
  * certified_version: 1.0.0
  * file_uuid: 82eac8a5-a25a-420d-9ea0-ec08c2c084a7
- * file_size: 4177 bytes
- * file_hash: a03c04b4389d38af8015f2db2a2e87e5b214f2e834da2431caac12d326352aab
+ * file_size: 2091 bytes
+ * file_hash: f69df8f04d0116b3edbbde99a4112c46e0042946e73cc599652c8d08aa8cdfb4
  * mast_hash: 705b5834dedcd20f74abc12bb264ae8c7bcc2f04dfeda78166730f5171e778e1
  * generated_by: preamble on npm!
  *
@@ -45,6 +45,10 @@
  * @returns {number[]} - The new dimensions, scaled down if needed.
  */
 export function capDim(dims, maxVolume) {
+    if (maxVolume <= 0) {
+        throw new Error('maxVolume must be greater than zero.');
+    }
+
     const totalVolume = dims.reduce((acc, dim) => acc * dim, 1);
     if (totalVolume <= maxVolume) {
         return [...dims]; // Return new array to ensure immutability
@@ -52,60 +56,7 @@ export function capDim(dims, maxVolume) {
 
     const scaleFactor = Math.pow(maxVolume / totalVolume, 1 / dims.length);
 
-    return dims.map((dim) => dim * scaleFactor); // No rounding
+    return dims.map((dim) => dim * scaleFactor);
 }
 
-/**
- * Caps an N-dimensional array and provides metadata on whether it was adjusted.
- * Returns floating-point values (no rounding applied).
- * @param {number[]} dims - Array of dimensions (e.g., [width, height, depth])
- * @param {number} maxVolume - The maximum allowed product of dimensions.
- * @returns {{ dims: number[], isCapped: boolean }} - New dimensions & whether they changed.
- */
-export function capDimWithInfo(dims, maxVolume) {
-    const newDims = capDim(dims, maxVolume);
-    const isCapped = !dims.every((dim, i) => dim === newDims[i]);
-
-    return { dims: newDims, isCapped };
-}
-
-/**
- * Rounding functions for capDimRounded.
- */
-const RoundingFunctions = {
-    nearest: Math.round,
-    ceil: Math.ceil,
-    floor: Math.floor,
-};
-
-/**
- * Caps an N-dimensional array to a max total volume (product of dimensions),
- * with optional rounding ("nearest", "up", "down").
- * @param {number[]} dims - Array of dimensions (e.g., [width, height, depth])
- * @param {number} maxVolume - The maximum allowed product of dimensions.
- * @param {"nearest" | "ceil" | "floor"} [round="nearest"] - Rounding mode.
- * @returns {number[]} - The new dimensions, scaled down if needed and rounded.
- */
-export function capDimRounded(dims, maxVolume, round = 'nearest') {
-    const newDims = capDim(dims, maxVolume);
-
-    // Select rounding function (default to "nearest")
-    const roundFn = RoundingFunctions[round] ?? RoundingFunctions.nearest;
-
-    return newDims.map(roundFn);
-}
-
-/**
- * Caps an N-dimensional array to a max total volume (product of dimensions),
- * with optional rounding and metadata on whether it was capped.
- * @param {number[]} dims - Array of dimensions (e.g., [width, height, depth])
- * @param {number} maxVolume - The maximum allowed product of dimensions.
- * @param {"nearest" | "ceil" | "floor"} [round="nearest"] - Rounding mode.
- * @returns {{ dims: number[], isCapped: boolean }} - New dimensions & whether they changed.
- */
-export function capDimRoundedWithInfo(dims, maxVolume, round = 'nearest') {
-    const newDims = capDimRounded(dims, maxVolume, round);
-    const isCapped = !dims.every((dim, i) => dim === newDims[i]);
-
-    return { dims: newDims, isCapped };
-}
+export default capDim;

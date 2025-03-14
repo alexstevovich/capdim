@@ -1,18 +1,28 @@
 {
     "name": "capdim",
     "version": "1.0.0",
-    "description": "Caps an N-dimensional array to a maximum total volume (the product of its dimensions) while preserving proportions. It's minimal, atomic, and high performance.",
+    "description": "Caps an N-dimensional array to a maximum total volume (the product of its dimensions) while preserving proportions.",
+    "type": "module",
+    "main": "./gen/index.cjs",
     "exports": {
         "import": "./src/index.js",
         "require": "./gen/index.cjs"
     },
-    "type": "module",
     "types": "./index.d.ts",
     "files": [
         "./src/",
         "./gen"
     ],
-    "main": "./gen/index.cjs",
+    "license": "Apache-2.0",
+    "author": {
+        "name": "Alex Stevovich",
+        "email": "alex.stevovich@gmail.com",
+        "url": "https://alexstevovich.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alexstevovich/capdim.git"
+    },
     "scripts": {
         "test": "vitest",
         "preamble": "preamble --apply --dir ./src/",
@@ -21,12 +31,6 @@
         "lint": "eslint ./src/",
         "lint:fix": "eslint --fix ./src/",
         "build": "npm run preamble && npm run pretty && npm run lint:fix && node build.js && preamble --apply --dir ./gen/  && npm run zord"
-    },
-    "license": "Apache-2.0",
-    "author": {
-        "name": "Alex Stevovich",
-        "email": "alex.stevovich@gmail.com",
-        "url": "https://alexstevovich.com"
     },
     "keywords": [
         "resize",
@@ -47,10 +51,6 @@
         "high-performance",
         "atomic"
     ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/alexstevovich/capdim.git"
-    },
     "devDependencies": {
         "@eslint/js": "^9.22.0",
         "eslint": "^9.21.0",
